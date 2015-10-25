@@ -9,6 +9,12 @@ from lvsr.config import Configuration
 
 logger = logging.getLogger(__name__)
 
+import blocks
+assert 'attention-lvcsr/' in blocks.__file__
+import theano
+assert 'attention-lvcsr/' in theano.__file__
+
+
 
 class ParseChanges(argparse.Action):
     def __call__(self, parser, args, values, option_string=None):

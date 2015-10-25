@@ -227,6 +227,10 @@ def train(config, save_path, bokeh_name,
     weights, = VariableFilter(
         applications=[r.generator.evaluate], name="weights")(
                 cost_cg)
+    #import ipdb; ipdb.set_trace()
+    hidden_states, = VariableFilter(
+        applications=[r.generator.evaluate], name="states")(
+                cost_cg)
     max_recording_length = named_copy(r.recordings.shape[0],
                                       "max_recording_length")
     # To exclude subsampling related bugs
@@ -268,6 +272,12 @@ def train(config, save_path, bokeh_name,
         noise_subjects = [p for p in cg.parameters if p not in attention_params]
         regularized_cg = apply_noise(cg, noise_subjects, reg_config['noise'])
     regularized_cost = regularized_cg.outputs[0]
+    if reg_config.get('norm_penalty'):
+        logger.info('apply norm_penalty')
+        hidden_norms = tensor.sum(hidden_states**2, axis=-1)**.5
+        regularized_cost += reg_config['norm_penalty'] * tensor.mean(
+                            (hidden_norms[1:] - hidden_norms[:-1])**2)
+        regularized_cost.name = 'regularized_cost'
     regularized_weights_penalty = regularized_cg.outputs[1]
 
     # Model is weird class, we spend lots of time arguing with Bart
@@ -413,25 +423,25 @@ def train(config, save_path, bokeh_name,
         .add_condition(["after_batch"], _gradient_norm_is_none),
         # Live plotting: requires launching `bokeh-server`
         # and allows to see what happens online.
-        Plot(bokeh_name
-             if bokeh_name
-             else os.path.basename(save_path),
-             [# Plot 1: training and validation costs
-             [average_monitoring.record_name(regularized_cost),
-             validation.record_name(cost)],
+        #Plot(bokeh_name
+        #     if bokeh_name
+        #     else os.path.basename(save_path),
+        #     [# Plot 1: training and validation costs
+        #     [average_monitoring.record_name(regularized_cost),
+        #     validation.record_name(cost)],
              # Plot 2: gradient norm,
-             [average_monitoring.record_name(algorithm.total_gradient_norm),
-             average_monitoring.record_name(clipping.threshold)],
+        #     [average_monitoring.record_name(algorithm.total_gradient_norm),
+        #     average_monitoring.record_name(clipping.threshold)],
              # Plot 3: phoneme error rate
-             [per_monitoring.record_name(per)],
+        #     [per_monitoring.record_name(per)],
              # Plot 4: training and validation mean weight entropy
-             [average_monitoring._record_name('weights_entropy_per_label'),
-             validation._record_name('weights_entropy_per_label')],
+        #     [average_monitoring._record_name('weights_entropy_per_label'),
+        #     validation._record_name('weights_entropy_per_label')],
              # Plot 5: training and validation monotonicity penalty
-             [average_monitoring._record_name('weights_penalty_per_recording'),
-             validation._record_name('weights_penalty_per_recording')]],
-             every_n_batches=10,
-             server_url=bokeh_server),
+        #     [average_monitoring._record_name('weights_penalty_per_recording'),
+        #     validation._record_name('weights_penalty_per_recording')]],
+        #     every_n_batches=10,
+        #     server_url=bokeh_server),
         Checkpoint(save_path,
                    before_first_epoch=not fast_start, after_epoch=True,
                    every_n_batches=train_conf.get('save_every_n_batches'),
