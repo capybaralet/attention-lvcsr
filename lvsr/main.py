@@ -273,11 +273,15 @@ def train(config, save_path, bokeh_name,
         regularized_cg = apply_noise(cg, noise_subjects, reg_config['noise'])
     regularized_cost = regularized_cg.outputs[0]
     if reg_config.get('norm_penalty'):
+        # FIXME: asjust for mask (/true sequence length)
         logger.info('apply norm_penalty')
         hidden_norms = tensor.sum(hidden_states**2, axis=-1)**.5
+        last_unmasked = T.sum(attended_mask, axis=1)
         regularized_cost += reg_config['norm_penalty'] * tensor.mean(
-                            (hidden_norms[1:] - hidden_norms[:-1])**2)
+                            (hidden_norms[1:last_unmasked] - hidden_norms[:last_unmasked-1])**2)
         regularized_cost.name = 'regularized_cost'
+        #att_mask = attended_mask.tag.test_value
+        #import ipdb; ipdb.set_trace()
     regularized_weights_penalty = regularized_cg.outputs[1]
 
     # Model is weird class, we spend lots of time arguing with Bart
