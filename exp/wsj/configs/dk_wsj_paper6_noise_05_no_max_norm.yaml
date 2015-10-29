@@ -1,6 +1,8 @@
 parent: $LVSR/exp/wsj/configs/wsj_paper6.yaml
 regularization:
-    norm_penalty: 5.
+    max_norm: 0.
+    noise: .05
+    norm_penalty: 10.
 data:
     batch_size: 10
 

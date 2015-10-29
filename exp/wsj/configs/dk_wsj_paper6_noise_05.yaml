@@ -1,0 +1,12 @@
+parent: $LVSR/exp/wsj/configs/wsj_paper6.yaml
+regularization:
+    noise: .05
+    norm_penalty: 10.
+data:
+    batch_size: 10
+
+initialization:
+    /recognizer:
+        initial_states_init:
+            !!python/object/apply:blocks.initialization.IsotropicGaussian [0.01]
+
