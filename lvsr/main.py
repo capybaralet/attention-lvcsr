@@ -276,7 +276,7 @@ def train(config, save_path, bokeh_name,
         # FIXME: asjust for mask (/true sequence length)
         logger.info('apply norm_penalty')
         hidden_norms = tensor.sum(hidden_states**2, axis=-1)**.5
-        last_unmasked = T.sum(attended_mask, axis=1)
+        last_unmasked = tensor.sum(attended_mask, axis=1)
         regularized_cost += reg_config['norm_penalty'] * tensor.mean(
                             (hidden_norms[1:last_unmasked] - hidden_norms[:last_unmasked-1])**2)
         regularized_cost.name = 'regularized_cost'
