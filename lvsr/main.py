@@ -227,9 +227,11 @@ def train(config, save_path, bokeh_name,
     weights, = VariableFilter(
         applications=[r.generator.evaluate], name="weights")(
                 cost_cg)
-    #import ipdb; ipdb.set_trace()
     hidden_states, = VariableFilter(
         applications=[r.generator.evaluate], name="states")(
+                cost_cg)
+    hidden_states_mask, = VariableFilter(
+        applications=[r.generator.evaluate], name="mask")(
                 cost_cg)
     max_recording_length = named_copy(r.recordings.shape[0],
                                       "max_recording_length")
@@ -275,17 +277,15 @@ def train(config, save_path, bokeh_name,
     if reg_config.get('norm_penalty'):
         logger.info('apply norm_penalty')
         hidden_norms = tensor.sum(hidden_states**2, axis=-1)**.5
-        hidden_norms *= attended_mask
-        last_unmasked = tensor.sum(attended_mask, axis=1)
+        hidden_norms *= hidden_states_mask
+        last_unmasked = tensor.sum(hidden_states_mask, axis=1)
         # FIXME: asjust for mask (/true sequence length)
         # mean(mean))??
-        # multiply by mask??
         regularized_cost += reg_config['norm_penalty'] * tensor.mean(
                              tensor.sum(
                               (hidden_norms[1:] - hidden_norms[:-1])**2, axis=0)
                                 / last_unmasked)
         regularized_cost.name = 'regularized_cost'
-        #att_mask = attended_mask.tag.test_value
         #import ipdb; ipdb.set_trace()
     regularized_weights_penalty = regularized_cg.outputs[1]
 
