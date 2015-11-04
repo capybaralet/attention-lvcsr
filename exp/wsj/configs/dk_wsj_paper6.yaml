@@ -9,3 +9,5 @@ initialization:
         initial_states_init:
             !!python/object/apply:blocks.initialization.IsotropicGaussian [0.01]
 
+#training:
+#    save_every_n_batches: 19
