@@ -278,13 +278,13 @@ def train(config, save_path, bokeh_name,
         logger.info('apply norm_penalty')
         hidden_norms = tensor.sum(hidden_states**2, axis=-1)**.5
         hidden_norms *= hidden_states_mask
-        last_unmasked = tensor.sum(hidden_states_mask, axis=1)
+        last_unmasked = tensor.sum(hidden_states_mask, axis=0)
         # FIXME: asjust for mask (/true sequence length)
         # mean(mean))??
-        regularized_cost += reg_config['norm_penalty'] * tensor.mean(
-                             tensor.sum(
-                              (hidden_norms[1:] - hidden_norms[:-1])**2, axis=0)
-                                / last_unmasked)
+        unnormalized_norm_cost_per_ex = tensor.sum((hidden_norms[1:] - hidden_norms[:-1])**2, axis=0)
+        unnamed_norm_cost = reg_config['norm_penalty'] * tensor.mean(unnormalized_norm_cost_per_ex / last_unmasked)
+        regularized_cost += unnamed_norm_cost
+        norm_cost = named_copy(unnamed_norm_cost, "norm_cost")
         regularized_cost.name = 'regularized_cost'
         #import ipdb; ipdb.set_trace()
     regularized_weights_penalty = regularized_cg.outputs[1]
@@ -387,7 +387,7 @@ def train(config, save_path, bokeh_name,
         #CodeVersion(['lvsr']),
         ]
     extensions.append(TrainingDataMonitoring(
-        [observables[0], algorithm.total_gradient_norm,
+        [observables[0], norm_cost, algorithm.total_gradient_norm,
             algorithm.total_step_norm, clipping.threshold,
             max_recording_length,
             max_attended_length, max_attended_mask_length], after_batch=True))
