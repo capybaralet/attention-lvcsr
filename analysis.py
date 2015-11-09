@@ -1,17 +1,24 @@
 
 
-from utils import *
+#from utils import *
+import os
+import cPickle as pickle
+import numpy as np
+from pylab import *
 
-
-basedir = os.join(os.environ('FUEL_DATA_PATH'), 'wsj')
+basedir = os.path.join(os.environ['SAVE_PATH'], 'wsj')
 paths = []
 
-for dir in basedir:
-    paths.append(os.join(dir, 'main_log.zip'))
+for dir in os.listdir(basedir):
+    if 'wsj' in dir:
+        paths.append(os.path.join(basedir, dir, 'main_log.zip'))
 
+labels = []
 for path in paths:
-    try:
-        log = pyload(path)
+    print path
+    if 1:#try:
+        with open(path, 'rb') as f_:
+            log = pickle.load(f_)
         print "len(log.keys()) =", len(log.keys())
         loglen = len(log.keys())
 
@@ -54,9 +61,16 @@ for path in paths:
         plot(results[0])
         figure(52)
         plot(results[1])
-        #plot(results[2])
+        figure(53)
+        plot(results[2][::100])
+        labels.append(path)
 
-    except:
-        print "could not load:", path
+    if 0:#except Exception:
+        print '\n'
+        print "could not load???", path
+        print Exception
+        print '\n'
 
+
+    legend(labels)
 
