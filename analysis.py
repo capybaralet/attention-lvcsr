@@ -2,7 +2,10 @@
 
 from utils import *
 
-path = '/data/lisatmp3/bahdanau/wsj3/wsj_paper6/annealing2_log.zip'
+import sys
+path = sys.argv[1]
+
+#path = '/data/lisatmp3/bahdanau/wsj3/wsj_paper6/annealing2_log.zip'
 
 log = pyload(path)
 print "len(log.keys()) =", len(log.keys())
