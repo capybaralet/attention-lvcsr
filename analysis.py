@@ -6,12 +6,17 @@ import cPickle as pickle
 import numpy as np
 from pylab import *
 
-basedir = os.path.join(os.environ['SAVE_PATH'], 'wsj')
-paths = []
+if 0:
+    basedir = os.path.join(os.environ['SAVE_PATH'], 'wsj')
+    paths = []
 
-for dir in os.listdir(basedir):
-    if 'wsj' in dir:
-        paths.append(os.path.join(basedir, dir, 'main_log.zip'))
+    for dir in os.listdir(basedir):
+        if 'wsj' in dir:
+            paths.append(os.path.join(basedir, dir, 'main_log.zip'))
+
+paths = []
+paths.append('/data/lisatmp3/bahdanau/wsj3/wsj_paper6/main_log.zip')
+paths.append('/Tmp/kruegerd/dk_wsj_paper6/main_log.zip')
 
 labels = []
 for path in paths:
