@@ -157,4 +157,12 @@ if __name__ == "__main__":
 
     import lvsr.main
     config = prepare_config(args)
+    if 0: # TODO: why doesn't this work??
+        import ipdb; ipdb.set_trace()
+        import os
+        _, savestr = os.path.split(config['cmd_args']['config_path'])
+        savestr = savestr[:-5]
+        config['cmd_args']['save_path'] = savestr
     getattr(lvsr.main, args.pop('func'))(config, **args)
+    #assert args.pop('func') == 'train'
+    #lvsr.main.train(config, **args)
