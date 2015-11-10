@@ -16,7 +16,10 @@ if 0:
 
 paths = []
 paths.append('/data/lisatmp3/bahdanau/wsj3/wsj_paper6/main_log.zip')
-paths.append('/Tmp/kruegerd/dk_wsj_paper6/main_log.zip')
+paths.append('/data/lisatmp4/kruegerd/dk_wsj_paper6/main_log.zip')
+paths.append('/data/lisatmp3/bahdanau/wsj3/wsj_paper6/annealing1_log.zip')
+paths.append('/Tmp/kruegerd/dk_wsj_paper6/annealing1_log.zip')
+paths.append('/data/lisatmp3/bahdanau/wsj3/wsj_paper6/annealing2_log.zip')
 
 labels = []
 for path in paths:
