@@ -278,10 +278,13 @@ def train(config, save_path, bokeh_name,
         logger.info('apply norm_penalty')
         hidden_norms = tensor.sum(hidden_states**2, axis=-1)**.5
         hidden_norms *= hidden_states_mask
-        # asjust for mask(/true sequence) length
-        last_unmasked = tensor.sum(hidden_states_mask, axis=0) - 1
         unnormalized_norm_cost_per_ex = tensor.sum((hidden_norms[1:] - hidden_norms[:-1])**2, axis=0)
-        unnamed_norm_cost = reg_config['norm_penalty'] * tensor.mean(unnormalized_norm_cost_per_ex / last_unmasked)
+        if reg_config.get('dont_normalize_norm_penalty'):
+            unnamed_norm_cost = reg_config['norm_penalty'] * tensor.mean(unnormalized_norm_cost_per_ex)
+        else:
+            # asjust for mask(/true sequence) length
+            last_unmasked = tensor.sum(hidden_states_mask, axis=0) - 1
+            unnamed_norm_cost = reg_config['norm_penalty'] * tensor.mean(unnormalized_norm_cost_per_ex / last_unmasked)
         regularized_cost += unnamed_norm_cost
         norm_cost = named_copy(unnamed_norm_cost, "norm_cost")
         regularized_cost.name = 'regularized_cost'

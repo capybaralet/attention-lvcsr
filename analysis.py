@@ -10,7 +10,7 @@ basedir = os.path.join(os.environ['SAVE_PATH'], 'wsj')
 paths = []
 
 for dir in os.listdir(basedir):
-    if 'wsj' in dir:
+    if 'wsj' in dir and 'noise' not in dir:
         paths.append(os.path.join(basedir, dir, 'main_log.zip'))
 
 labels = []
