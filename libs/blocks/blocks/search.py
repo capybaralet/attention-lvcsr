@@ -297,6 +297,7 @@ class BeamSearch(object):
         done = []
 
         for i in range(max_length):
+            #print i, done
             done = sorted(done, key=lambda x: x[1][-1] - char_discount * len(x[1]))
             done = done[:self.beam_size]
 

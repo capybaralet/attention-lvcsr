@@ -23,6 +23,8 @@ else:
     paths.append('/data/lisatmp3/bahdanau/wsj3/wsj_paper6/main_log.zip')
     paths.append('/data/lisatmp4/kruegerd/dk_wsj_paper6/main_log.zip')
     paths.append('/data/lisatmp4/kruegerd/dk_wsj_paper6_continue/main_log.zip')
+    paths.append('/data/lisatmp4/kruegerd/dk_wsj_paper6_cost100unnormalized_continue/main_log.zip')
+    paths.append('/data/lisatmp4/kruegerd/wsj_paper6_cost100unnormalized/main_log.zip')
     if 0:
         paths.append('/data/lisatmp3/bahdanau/wsj3/wsj_paper6/annealing1_log.zip')
         paths.append('/Tmp/kruegerd/dk_wsj_paper6/annealing1_log.zip')

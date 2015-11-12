@@ -81,10 +81,10 @@ class PhonemeErrorRate(MonitoredQuantity):
             outputs, search_costs = self.recognizer.beam_search(
                 recording, char_discount=0.1)
             recognized = self.dataset.decode(outputs[0])
-            print recognized
+            print (recognized)
             error = min(1, wer(groundtruth, recognized))
         except CandidateNotFoundError:
-            print "CandidateNotFoundError"
+            print ("CandidateNotFoundError")
             error = 1.0
         self.total_errors += error * len(groundtruth)
         self.total_length += len(groundtruth)
@@ -402,7 +402,7 @@ def train(config, save_path, bokeh_name,
                 algorithm.total_step_norm, clipping.threshold,
                 max_recording_length,
                 max_attended_length, max_attended_mask_length], after_batch=True))
-    if 0:
+    if 1:
         average_monitoring = TrainingDataMonitoring(
             attach_aggregation_schemes(observables),
             prefix="average", every_n_batches=10)
