@@ -9,6 +9,8 @@ then
     export LD_LIBRARY_PATH=$KALDI_ROOT/tools/openfst/lib:$LD_LIBRARY_PATH
 fi
 
+export EX=$LVSR/exp/wsj/configs
+
 export BLOCKS_CONFIG=$LVSR/config/blocks.yaml
 export THEANORC=$LVSR/config/theano.rc:$HOME/.theanorc
 

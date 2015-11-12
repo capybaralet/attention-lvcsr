@@ -81,8 +81,10 @@ class PhonemeErrorRate(MonitoredQuantity):
             outputs, search_costs = self.recognizer.beam_search(
                 recording, char_discount=0.1)
             recognized = self.dataset.decode(outputs[0])
+            print recognized
             error = min(1, wer(groundtruth, recognized))
         except CandidateNotFoundError:
+            print "CandidateNotFoundError"
             error = 1.0
         self.total_errors += error * len(groundtruth)
         self.total_length += len(groundtruth)
@@ -227,6 +229,12 @@ def train(config, save_path, bokeh_name,
     weights, = VariableFilter(
         applications=[r.generator.evaluate], name="weights")(
                 cost_cg)
+    hidden_states, = VariableFilter(
+        applications=[r.generator.evaluate], name="states")(
+                cost_cg)
+    hidden_states_mask, = VariableFilter(
+        applications=[r.generator.evaluate], name="mask")(
+                cost_cg)
     max_recording_length = named_copy(r.recordings.shape[0],
                                       "max_recording_length")
     # To exclude subsampling related bugs
@@ -268,6 +276,21 @@ def train(config, save_path, bokeh_name,
         noise_subjects = [p for p in cg.parameters if p not in attention_params]
         regularized_cg = apply_noise(cg, noise_subjects, reg_config['noise'])
     regularized_cost = regularized_cg.outputs[0]
+    if reg_config.get('norm_penalty'):
+        logger.info('apply norm_penalty')
+        hidden_norms = tensor.sum(hidden_states**2, axis=-1)**.5
+        hidden_norms *= hidden_states_mask
+        unnormalized_norm_cost_per_ex = tensor.sum((hidden_norms[1:] - hidden_norms[:-1])**2, axis=0)
+        if reg_config.get('dont_normalize_norm_penalty'):
+            unnamed_norm_cost = reg_config['norm_penalty'] * tensor.mean(unnormalized_norm_cost_per_ex)
+        else:
+            # asjust for mask(/true sequence) length
+            last_unmasked = tensor.sum(hidden_states_mask, axis=0) - 1
+            unnamed_norm_cost = reg_config['norm_penalty'] * tensor.mean(unnormalized_norm_cost_per_ex / last_unmasked)
+        regularized_cost += unnamed_norm_cost
+        norm_cost = named_copy(unnamed_norm_cost, "norm_cost")
+        regularized_cost.name = 'regularized_cost'
+        #import ipdb; ipdb.set_trace()
     regularized_weights_penalty = regularized_cg.outputs[1]
 
     # Model is weird class, we spend lots of time arguing with Bart
@@ -367,15 +390,23 @@ def train(config, save_path, bokeh_name,
         CGStatistics(),
         #CodeVersion(['lvsr']),
         ]
-    extensions.append(TrainingDataMonitoring(
-        [observables[0], algorithm.total_gradient_norm,
-            algorithm.total_step_norm, clipping.threshold,
-            max_recording_length,
-            max_attended_length, max_attended_mask_length], after_batch=True))
-    average_monitoring = TrainingDataMonitoring(
-        attach_aggregation_schemes(observables),
-        prefix="average", every_n_batches=10)
-    extensions.append(average_monitoring)
+    if reg_config.get('norm_penalty'):
+        extensions.append(TrainingDataMonitoring(
+            [observables[0], norm_cost, algorithm.total_gradient_norm,
+                algorithm.total_step_norm, clipping.threshold,
+                max_recording_length,
+                max_attended_length, max_attended_mask_length], after_batch=True))
+    else:
+        extensions.append(TrainingDataMonitoring(
+            [observables[0], algorithm.total_gradient_norm,
+                algorithm.total_step_norm, clipping.threshold,
+                max_recording_length,
+                max_attended_length, max_attended_mask_length], after_batch=True))
+    if 0:
+        average_monitoring = TrainingDataMonitoring(
+            attach_aggregation_schemes(observables),
+            prefix="average", every_n_batches=10)
+        extensions.append(average_monitoring)
     validation = DataStreamMonitoring(
         attach_aggregation_schemes([cost, weights_entropy, weights_penalty]),
         data.get_stream("valid"), prefix="valid").set_conditions(
@@ -394,12 +425,13 @@ def train(config, save_path, bokeh_name,
             every_n_batches=per_batches,
             after_training=False)
     extensions.append(per_monitoring)
+    # DK - change here
     track_the_best_per = TrackTheBest(
         per_monitoring.record_name(per)).set_conditions(
-            before_first_epoch=True, after_epoch=True)
+            before_first_epoch=True, every_n_batches=per_batches)
     track_the_best_likelihood = TrackTheBest(
         validation.record_name(cost)).set_conditions(
-            before_first_epoch=True, after_epoch=True)
+            before_first_epoch=True, every_n_batches=validation_batches)
     extensions += [track_the_best_likelihood, track_the_best_per]
     extensions.append(AdaptiveClipping(
         algorithm.total_gradient_norm.name,
@@ -408,44 +440,47 @@ def train(config, save_path, bokeh_name,
     extensions += [
         SwitchOffLengthFilter(data.length_filter,
             after_n_batches=train_conf.get('stop_filtering')),
-        FinishAfter(after_n_batches=train_conf['num_batches'],
-                    after_n_epochs=train_conf['num_epochs'])
+        FinishAfter(after_n_epochs=train_conf['num_epochs'])
         .add_condition(["after_batch"], _gradient_norm_is_none),
         # Live plotting: requires launching `bokeh-server`
         # and allows to see what happens online.
-        Plot(bokeh_name
-             if bokeh_name
-             else os.path.basename(save_path),
-             [# Plot 1: training and validation costs
-             [average_monitoring.record_name(regularized_cost),
-             validation.record_name(cost)],
+        #Plot(bokeh_name
+        #     if bokeh_name
+        #     else os.path.basename(save_path),
+        #     [# Plot 1: training and validation costs
+        #     [average_monitoring.record_name(regularized_cost),
+        #     validation.record_name(cost)],
              # Plot 2: gradient norm,
-             [average_monitoring.record_name(algorithm.total_gradient_norm),
-             average_monitoring.record_name(clipping.threshold)],
+        #     [average_monitoring.record_name(algorithm.total_gradient_norm),
+        #     average_monitoring.record_name(clipping.threshold)],
              # Plot 3: phoneme error rate
-             [per_monitoring.record_name(per)],
+        #     [per_monitoring.record_name(per)],
              # Plot 4: training and validation mean weight entropy
-             [average_monitoring._record_name('weights_entropy_per_label'),
-             validation._record_name('weights_entropy_per_label')],
+        #     [average_monitoring._record_name('weights_entropy_per_label'),
+        #     validation._record_name('weights_entropy_per_label')],
              # Plot 5: training and validation monotonicity penalty
-             [average_monitoring._record_name('weights_penalty_per_recording'),
-             validation._record_name('weights_penalty_per_recording')]],
-             every_n_batches=10,
-             server_url=bokeh_server),
+        #     [average_monitoring._record_name('weights_penalty_per_recording'),
+        #     validation._record_name('weights_penalty_per_recording')]],
+        #     every_n_batches=10,
+        #     server_url=bokeh_server),
         Checkpoint(save_path,
                    before_first_epoch=not fast_start, after_epoch=True,
-                   every_n_batches=train_conf.get('save_every_n_batches'),
+                   #every_n_batches=train_conf.get('save_every_n_batches'),
+                   every_n_batches=validation_batches,
                    save_separately=["model", "log"],
                    use_cpickle=True)
+        # DK change here
         .add_condition(
-            ['after_epoch'],
+            ['after_batch'],
             OnLogRecord(track_the_best_per.notification_name),
             (root_path + "_best" + extension,))
         .add_condition(
-            ['after_epoch'],
+            ['after_batch'],
             OnLogRecord(track_the_best_likelihood.notification_name),
             (root_path + "_best_ll" + extension,)),
         ProgressBar(),
+        # DK change here
+        #Printing(every_n_batches=100,
         Printing(every_n_batches=1,
                     attribute_filter=PrintingFilterList()
                     )]

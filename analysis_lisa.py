@@ -6,6 +6,13 @@ import cPickle as pickle
 import numpy as np
 from pylab import *
 
+
+"""
+TODO: add "False" entries....
+"""
+
+
+
 if len(sys.argv) > 1:
     paths = [sys.argv[1]]
 else:
@@ -15,6 +22,7 @@ else:
     paths.append('/data/lisatmp4/kruegerd/dk_wsj_paper6/pretraining_log.zip')
     paths.append('/data/lisatmp3/bahdanau/wsj3/wsj_paper6/main_log.zip')
     paths.append('/data/lisatmp4/kruegerd/dk_wsj_paper6/main_log.zip')
+    paths.append('/data/lisatmp4/kruegerd/dk_wsj_paper6_continue/main_log.zip')
     if 0:
         paths.append('/data/lisatmp3/bahdanau/wsj3/wsj_paper6/annealing1_log.zip')
         paths.append('/Tmp/kruegerd/dk_wsj_paper6/annealing1_log.zip')
