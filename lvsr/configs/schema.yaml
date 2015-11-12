@@ -85,6 +85,8 @@ map:
                 type: float
             norm_penalty:
                 type: float
+            dont_normalize_norm_penalty:
+                type: bool
     initialization:
         matching-rule: any
         map:

@@ -16,6 +16,7 @@ if 1:
 
 
 labels = []
+all_valid_results = []
 for path in paths:
     print path
     if 1:#try:
@@ -58,6 +59,8 @@ for path in paths:
             res = search_log(log, key)
             valid_results.append(res)
             print key, ":    length =", len(res)
+
+        all_valid_results.append(valid_results)
 
         figure(51)
         plot(results[0])

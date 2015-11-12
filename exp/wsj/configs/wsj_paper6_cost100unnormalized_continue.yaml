@@ -1,16 +1,15 @@
 parent: $LVSR/exp/wsj/configs/wsj_paper6.yaml
+regularization:
+    norm_penalty: 100.
+    dont_normalize_norm_penalty: True
 data:
     batch_size: 10
 
 stages:
-    pretraining:
-        training:
-            num_epochs: 1
     main:
         number: 100
         training:
             num_epochs: 16
-            restart_from: _best_ll
     annealing1:
         number: 200
         training:

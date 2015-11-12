@@ -6,26 +6,23 @@ import cPickle as pickle
 import numpy as np
 from pylab import *
 
-if 0:
-    basedir = os.path.join(os.environ['SAVE_PATH'], 'wsj')
+if len(sys.argv) > 1:
+    paths = [sys.argv[1]]
+else:
+    # FOR BART2?
     paths = []
-
-    for dir in os.listdir(basedir):
-        if 'wsj' in dir:
-            paths.append(os.path.join(basedir, dir, 'main_log.zip'))
-
-for dir in os.listdir(basedir):
-    if 'wsj' in dir and 'noise' not in dir:
-        paths.append(os.path.join(basedir, dir, 'main_log.zip'))
-
-paths = []
-paths.append('/data/lisatmp3/bahdanau/wsj3/wsj_paper6/main_log.zip')
-paths.append('/data/lisatmp4/kruegerd/dk_wsj_paper6/main_log.zip')
-paths.append('/data/lisatmp3/bahdanau/wsj3/wsj_paper6/annealing1_log.zip')
-paths.append('/Tmp/kruegerd/dk_wsj_paper6/annealing1_log.zip')
-paths.append('/data/lisatmp3/bahdanau/wsj3/wsj_paper6/annealing2_log.zip')
+    paths.append('/data/lisatmp3/bahdanau/wsj3/wsj_paper6/pretraining_log.zip')
+    paths.append('/data/lisatmp4/kruegerd/dk_wsj_paper6/pretraining_log.zip')
+    paths.append('/data/lisatmp3/bahdanau/wsj3/wsj_paper6/main_log.zip')
+    paths.append('/data/lisatmp4/kruegerd/dk_wsj_paper6/main_log.zip')
+    if 0:
+        paths.append('/data/lisatmp3/bahdanau/wsj3/wsj_paper6/annealing1_log.zip')
+        paths.append('/Tmp/kruegerd/dk_wsj_paper6/annealing1_log.zip')
+        paths.append('/data/lisatmp3/bahdanau/wsj3/wsj_paper6/annealing2_log.zip')
+        paths.append('/Tmp/kruegerd/dk_wsj_paper6/annealing2_log.zip')
 
 labels = []
+all_valid_results = []
 for path in paths:
     print path
     if 1:#try:
@@ -68,6 +65,8 @@ for path in paths:
             res = search_log(log, key)
             valid_results.append(res)
             print key, ":    length =", len(res)
+
+        all_valid_results.append(valid_results)
 
         figure(51)
         plot(results[0])

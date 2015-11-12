@@ -1,0 +1,1 @@
+THEANO_FLAGS=device=gpu,floatX=float32,lib.cnmem=.9 p bin/run.py train /Tmp/kruegerd/dk_wsj_paper6_continue --params=/data/lisatmp4/dk_wsj_paper6/main.zip --per-epochs=1 --validation-batches=300 /exp/wsj/configs/dk_wsj_paper6_continue.yaml 
