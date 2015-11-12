@@ -14,8 +14,8 @@ export EX=$LVSR/exp/wsj/configs
 export BLOCKS_CONFIG=$LVSR/config/blocks.yaml
 export THEANORC=$LVSR/config/theano.rc:$HOME/.theanorc
 
-export FUEL_DATA_PATH=/work/gwtaylor/DTM/datasets/
-export FUEL_DATA_PATH=/data/lisa/data/
+#export FUEL_DATA_PATH=/work/gwtaylor/DTM/datasets/
+#export FUEL_DATA_PATH=/data/lisa/data/
 
 #python modules
 export PYTHONPATH=$LVSR:$LVSR/libs/blocks:$LVSR/libs/blocks-extras:$LVSR/libs/fuel:$LVSR/libs/Theano:$LVSR/libs/picklable-itertools: #$PYTHONPATH
