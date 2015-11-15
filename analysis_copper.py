@@ -19,7 +19,7 @@ labels = []
 all_valid_results = []
 for path in paths:
     print path
-    if 1:#try:
+    try:
         with open(path, 'rb') as f_:
             log = pickle.load(f_)
         print "len(log.keys()) =", len(log.keys())
@@ -70,10 +70,10 @@ for path in paths:
         plot(results[2][::100])
         labels.append(path)
 
-    if 0:#except Exception:
+    except:
         print '\n'
         print "could not load???", path
-        print Exception
+        #print Exception
         print '\n'
 
 
