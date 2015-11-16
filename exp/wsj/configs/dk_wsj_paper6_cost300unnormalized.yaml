@@ -13,7 +13,7 @@ stages:
         number: 100
         training:
             num_epochs: 16
-            restart_from: _best
+            restart_from: _best_ll
     annealing1:
         number: 200
         training:
