@@ -16,15 +16,20 @@ TODO: add "False" entries....
 if len(sys.argv) > 1:
     paths = [sys.argv[1]]
 else:
-    # FOR BART2?
     paths = []
-    paths.append('/data/lisatmp3/bahdanau/wsj3/wsj_paper6/pretraining_log.zip')
-    paths.append('/data/lisatmp4/kruegerd/dk_wsj_paper6/pretraining_log.zip')
-    paths.append('/data/lisatmp3/bahdanau/wsj3/wsj_paper6/main_log.zip')
-    paths.append('/data/lisatmp4/kruegerd/dk_wsj_paper6/main_log.zip')
-    paths.append('/data/lisatmp4/kruegerd/dk_wsj_paper6_continue/main_log.zip')
-    paths.append('/data/lisatmp4/kruegerd/dk_wsj_paper6_cost100unnormalized_continue/main_log.zip')
-    paths.append('/data/lisatmp4/kruegerd/wsj_paper6_cost100unnormalized/main_log.zip')
+    if 1:
+        #paths.append('/data/lisatmp3/bahdanau/wsj3/wsj_paper6/pretraining_log.zip')
+        #paths.append('/data/lisatmp4/kruegerd/dk_wsj_paper6/pretraining_log.zip')
+        paths.append('/data/lisatmp3/bahdanau/wsj3/wsj_paper6/main_log.zip')
+        paths.append('/data/lisatmp3/bahdanau/wsj3/wsj_paper6/annealing2_log.zip')
+        #paths.append('/data/lisatmp4/kruegerd/dk_wsj_paper6/main_log.zip')
+        #paths.append('/data/lisatmp4/kruegerd/dk_wsj_paper6_continue/main_log.zip') # TODO: restart (bart5)
+        # currently running (?) (local disk...):
+        paths.append('/Tmp/kruegerd/dk_wsj_paper6_cost100unnormalized_continue/main_log.zip') # bart10
+        paths.append('/Tmp/kruegerd/dk_wsj_paper6_cost100unnormalized_continue/annealing2_log.zip') # bart10
+        #paths.append('/data/lisatmp4/kruegerd/dk_wsj_paper6_cost100unnormalized_continue/main_log.zip')
+        #paths.append('/Tmp/kruegerd/wsj_paper6_cost100unnormalized/main_log.zip') # bart2
+        #paths.append('/data/lisatmp4/kruegerd/wsj_paper6_cost100unnormalized/main_log.zip')
     if 0:
         paths.append('/data/lisatmp3/bahdanau/wsj3/wsj_paper6/annealing1_log.zip')
         paths.append('/Tmp/kruegerd/dk_wsj_paper6/annealing1_log.zip')

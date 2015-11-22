@@ -1,12 +1,16 @@
 
 import os
+import sys
 import cPickle as pickle
 
 def pyload(filepath):
     with open(filepath, 'rb') as file_:
         return pickle.load(file_)
 
-basedir = '/work/capybara/results/wsj/'
+if len(sys.argv) > 1:
+    basedir = sys.argv[1]
+else:
+    basedir = os.environ['SAVE_PATH'] + '/' #wsj/'
 print basedir
 
 for dir in os.listdir(basedir):

@@ -1,0 +1,21 @@
+parent: $LVSR/exp/wsj/configs/wsj_paper6.yaml
+regularization:
+    norm_penalty: 0.
+data:
+    batch_size: 10
+
+stages:
+    annealing1:
+        training:
+            num_epochs: 3
+    annealing2:
+        training:
+            num_epochs: 3
+
+initialization:
+    /recognizer:
+        initial_states_init:
+            !!python/object/apply:blocks.initialization.IsotropicGaussian [0.01]
+
+#training:
+#    save_every_n_batches: 19
